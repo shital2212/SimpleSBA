@@ -13,4 +13,8 @@ public class TestController {
 		return "SpringBoot API Test Successful";
 	}
 	
+	@GetMapping("/hello")
+	public String hello() {
+		return "SpringBoot API Test Successful with hello API call";
+	}
 }
