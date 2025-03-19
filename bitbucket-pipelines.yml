@@ -16,8 +16,8 @@ pipelines:
           - docker
         script:
           - echo ${DOCKER_PASSWORD} | docker login -u "$DOCKER_USERNAME" --password-stdin
-          - docker build -t saodocker1/demoimg:latest .
-          - docker push saodocker1/demoimg:latest
+          - docker build -t "$DOCKER_USERNAME"/springbootapp:latest .
+          - docker push "$DOCKER_USERNAME"/springbootapp:latest
 
 definitions:
   services:
