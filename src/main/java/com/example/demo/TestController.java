@@ -10,7 +10,7 @@ public class TestController {
 
 	@GetMapping("/index")
 	public String index() {
-		return "SpringBoot API Test Successful";
+		return "SpringBoot API Test Successful and wokring with jenkins";
 	}
 	
 	@GetMapping("/hello")
