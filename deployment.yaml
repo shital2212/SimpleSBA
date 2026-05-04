@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: springboot
-        image: sbbwebapp:01
+        image: sbwebapp:01
         ports:
         - containerPort: 8080
