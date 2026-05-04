@@ -1,0 +1,250 @@
+Jenkins CICD Pipeline + Azure VM + Azure AKS Lab
+This lab demonstrates an end-to-end CI/CD workflow on Azure using Ubuntu VM + Jenkins + GitHub/Bitbucket + Maven + Docker + Docker Hub + Azure Kubernetes Service (AKS).
+You will:
+•	Prepare an Ubuntu VM with all required DevOps tools
+•	Configure Jenkins and integrate with GitHub/Bitbucket, Maven, Docker
+•	Build a Java application, containerize it, and push the image to Docker Hub
+•	Deploy the containerized application to AKS and expose it publicly
+Target Audience:
+•	DevOps beginners to intermediate
+•	Jenkins, Docker, Kubernetes, Azure learners
+•	Ideal for classroom / demo / certification-aligned labs
+Architecture:
+GitHub/Bitbucket Repo
+↓
+Jenkins (Azure VM)
+↓ Build (Maven)
+↓ Docker Build image
+↓ Push image to Docker Hub
+↓
+Azure AKS
+↓
+Public Service (LoadBalancer)
+Prerequisites
+•	Azure Subscription
+•	GitHub account
+•	Docker Hub account
+•	Basic Linux commands knowledge
+•	Sample Java Spring Boot / Java Maven app
+
+
+
+
+
+LAB 1: Create Azure Ubuntu VM
+Objective: Provision an Ubuntu server to host Jenkins and DevOps tools.
+Steps:
+a. Login to Azure Portal
+b. Create Virtual Machine
+•	Image: Ubuntu 22.04 LTS
+•	Size: Standard B2s
+•	Authentication: Username + SSH / Password
+c. Open Inbound Ports
+•	22 (SSH)
+•	8080 (Jenkins / App – optional)
+Add the in-bound port:
+Field  	Value
+Source  	Any Source
+port ranges	*
+Destination	AnyDestination 
+port ranges	8080
+Protocol	TCP
+Action    	Allow
+Priority  	1000
+Name    	Allow-Jenkins-8080
+d. Connect to VM using:
+ssh azureuser@<public-ip>
+o/p: provide the password
+
+LAB 2: Install Tools on Ubuntu
+a. Update System
+sudo apt update && sudo apt upgrade -y
+b. Install Git
+sudo apt install git -y
+git --version
+c. Install Maven
+sudo apt install maven -y
+mvn -version 
+o/p: maven and jdk 21 path
+d. Install OpenJDK 17 for the springboot app as it support jdk 17
+sudo apt install openjdk-17-jdk -y
+java -version
+path: /usr/lib/jvm/java-17-openjdk-amd64
+	Optional: Select the jdk 21 or 17: sudo update-alternatives --config java
+	o/p: select the version to set it default for vm.		
+e. Docker installation:
+i. Install Docker
+sudo apt install docker.io -y
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -aG docker $USER
+ii. Provide permission on docker.sock:
+sudo chmod 666 /var/run/docker.sock
+(Re-login required)
+iii. Verify Docker
+docker –version
+docker run hello-world
+f. Jenkins installation: 
+i. Install Jenkins
+sudo wget -O /etc/apt/keyrings/jenkins-keyring.asc \
+  https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key
+echo "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc]" \
+  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
+sudo apt update
+sudo apt install jenkins
+ii. Start Jenkins:
+sudo systemctl status jenkins
+o/p expected: started
+sudo systemctl start jenkins
+iii. Access Jenkins:
+http://<VM-Public-IP>:8080 
+iv. Unlock Jenkins:
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+LAB 3: Jenkins Initial Setup
+a. Install Required Plugins:
+•	GitHub Plugin
+•	Maven Integration
+•	Docker Pipeline (optional)
+•	Kubernetes CLI (optional)
+b. Configure Tools in Jenkins
+•	JDK, Maven & Git
+
+
+LAB 4: Jenkins Demo – Fetch Code from GitHub
+Objective: Clone source code from GitHub using Jenkins.
+a. Jenkins Job
+•	Type: Freestyle Project
+•	Name: buildAppAndPushDockerImg_CI
+•	SCM: Git
+•	Repo URL: https://github.com/<username>/<repo>.git
+b. Build Step (Verify)
+ls -l
+
+LAB 5: Jenkins Demo – Build Using Maven
+Objective: Compile and package Java application.
+a.	Build Step:
+clean package
+b.	Expected Output
+target/*.jar file generated
+LAB 6: Jenkins Demo – Docker Build & Containerization
+Objective: Create Docker image for application.
+a.	Dockerfile (in repo root):
+FROM openjdk:17-jdk-slim
+COPY target/*.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","/app.jar"]
+b.	Jenkins Build Step
+docker build -t <dockerhub-username>/springboot-app:1.0 .
+docker run -d -p 8080:8080 <dockerhub-username>/springboot-app:1.0
+LAB 7: Jenkins Demo – Push Image to Docker Hub
+Objective: Publish Docker image to registry.
+Docker Login on Jenkins-vm:
+docker login
+Jenkins Build Step:
+docker push <dockerhub-username>/springboot-app:1.0 
+Steps for Jenkins job:
+a.	Create the global username & password credentials for dockerhub credentials and store as: username and password
+b.	Create the environment variables in the job:
+i.	Environment var section
+ii.	Select option: Use secret text(s) or file(s) 
+iii.	Select Bindings: 
+Username and password (separated) 
+iv.	Provide the env var name as: 
+a)	DOCKER_USER 
+b)	DOCKER_PASS
+c.	Add the below commands to login and push the image in execute shell commands:
+i.	docker build -t saodocker1/bbwebapp:01 .
+ii.	#docker stop app
+iii.	#docker rm app
+iv.	#docker run -d --name app -p 9090:8080 saodocker1/bbwebapp:01
+v.	#echo "container started"
+vi.	echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+vii.	docker push saodocker1/bbwebapp:01
+viii.	echo "image pushed successfully"
+d.	Save and build the job. Observe the image pushed on docker hub registry
+
+LAB 8: Create Azure AKS Cluster
+Objective: Deploy Kubernetes cluster for application hosting.
+Steps:
+a.	Azure Portal → Kubernetes Services → Create
+b.	Node Count: 2
+c.	Node Size: Standard B2s
+d.	Authentication: Local accounts
+e.	Connect to AKS cluster:
+i.	kubectl get deployments --all-namespaces=true 
+ii.	Kubectl  get nodes
+f.	Install azure cli on ubuntu server:
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+g.	Connect to AKS from Jenkins-vm: 
+i.	az login
+ii.	az aks get-credentials \
+--resource-group aks-demo \
+--name demo-cluster
+h.	Verify:
+kubectl get nodes
+  
+LAB 9: Deploy Application to AKS
+Deployment YAML: refer the deployment.yaml file from repo
+Apply:
+kubectl apply -f deployment.yaml
+kubectl get pods
+
+LAB 10: Expose Application (Service)
+Service YAML: refer the service.yaml file from repo
+Apply:
+kubectl apply -f service.yaml
+kubectl get svc
+Access App
+http://<EXTERNAL-IP>
+LAB 11: Integrate Kubernetes (AKS) with Jenkins for Deployment
+Objective: Configure Jenkins to interact with Azure AKS and deploy Kubernetes manifests directly from Jenkins.
+a.	Install Kubernetes CLI on Jenkins VM
+curl -LO https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl
+chmod +x kubectl
+sudo mv kubectl /usr/local/bin/
+kubectl version --client
+b.	On Jenkins VM: 
+i.	Install Azure CLI:
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+az version
+ii.	Login to Azure: 
+az login 
+iii.	Configure AKS Access on Jenkins Server
+az aks get-credentials \
+--resource-group <rg-name> \
+--name <aks-name>
+iv.	Verify access:
+kubectl get nodes
+kubectl get pods -A    
+v.	Here, This creates ~/.kube/config which Jenkins will use.
+Grant Jenkins Permission to Use kubeconfig
+sudo mkdir -p /var/lib/jenkins/.kube
+sudo cp ~/.kube/config /var/lib/jenkins/.kube/config
+sudo chown -R jenkins:jenkins /var/lib/jenkins/.kube
+vi. Restart Jenkins:
+sudo systemctl restart jenkins     
+c. Jenkins Demo – Deploy to AKS from Jenkins:
+i. Create a new Jenkins Job:
+•	Job Name: deployAppToAKS_CD
+•	Job Type: Freestyle Project 
+•	Git repo: <repo-url>  To take the deployment.yaml and service.yaml files to deploy and expose the application using LoadBalancer.
+•	Add Build Step → Execute Shell
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
+kubectl rollout status deployment/springboot-deployment
+ii. Configure the existing job named: buildAppAndPushDockerImg_CI
+Post build successful execute project: deployAppToAKS_CD
+d. Verify Deployment from Jenkins Console
+kubectl get pods
+kubectl get svc
+Expected:
+•	Pods in Running state
+•	EXTERNAL-IP assigned to service
+
+Troubleshooting guide: 
+1.	To check details Jenkins logs:
+sudo journalctl -u jenkins -n 100 --no-pager
+2.	change the jdk alternatives:
+sudo update-alternatives --config java
