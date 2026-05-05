@@ -15,6 +15,12 @@ public class TestController {
 	
 	@GetMapping("/hello")
 	public String hello() {
+		return "SpringBoot API Test Successful with hello API call";
+	}
+
+	@GetMapping("/hi123")
+	public String hello() {
 		return "SpringBoot API Test Successful with hello API call, working with Azure VM, Maven, Jenkins, Docker & Azure  AKS";
 	}
+
 }
