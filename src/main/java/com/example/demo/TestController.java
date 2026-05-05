@@ -19,7 +19,7 @@ public class TestController {
 	}
 
 	@GetMapping("/hi123")
-	public String hello() {
+	public String hi() {
 		return "SpringBoot API Test Successful with hello API call, working with Azure VM, Maven, Jenkins, Docker & Azure  AKS";
 	}
 
