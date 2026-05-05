@@ -23,4 +23,9 @@ public class TestController {
 		return "SpringBoot API Test Successful with hello API call, working with Azure VM, Maven, Jenkins, Docker & Azure  AKS";
 	}
 
+	@GetMapping("/diff")
+	public String diff() {
+		return "IP address of Loadbalancer is used..";
+	}
+
 }
