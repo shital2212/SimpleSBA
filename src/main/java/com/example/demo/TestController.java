@@ -14,6 +14,6 @@ public class TestController {
 	}
 	@GetMapping("/hello")
 public String hello() {
-return "SpringBoot API Test Successful with hello API call, working with Azure AKS";
+return "SpringBoot API Test Successful with hello API call, working with Azure VM, Maven, Jenkins, Docker & Azure  AKS";
 }
 }
