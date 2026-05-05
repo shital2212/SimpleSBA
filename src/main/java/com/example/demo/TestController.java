@@ -12,9 +12,8 @@ public class TestController {
 	public String index() {
 		return "SpringBoot API Test Successful and wokring with jenkins";
 	}
-	
 	@GetMapping("/hello")
-	public String hello() {
-		return "SpringBoot API Test Successful with hello API call";
-	}
+public String hello() {
+return "SpringBoot API Test Successful with hello API call, working with Azure AKS";
+}
 }
