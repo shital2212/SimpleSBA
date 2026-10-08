@@ -30,4 +30,26 @@ jobs:
     - name: Build with Maven
       run: mvn clean package
 
-    
+    # Example 2: Uploading an Artifact (Saving the compiled JAR file)
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+         name: java-app-jar
+         path: target/*.jar
+         retention-days: 5
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+  
+    # Example 3: Downloading the Artifact in a later job
+    - name: Download Build Artifact
+      uses: actions/download-artifact@v4
+      with:
+         name: java-app-jar
+         path: drop/
+  
+    - name: Verify Downloaded Artifact
+      run: ls -R drop/
+
+         
