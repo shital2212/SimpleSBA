@@ -69,7 +69,7 @@ jobs:
 
       # Packages the application into a container image and pushes it to Docker Hub
       - name: Build and Push Docker Image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: . # Uses the current directory as the build context
           file: ./Dockerfile # The path to your Docker setup file (Ensure case-sensitivity matches)
