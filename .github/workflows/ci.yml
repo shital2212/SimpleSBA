@@ -41,15 +41,33 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-  
+     # Step 1: Log in to Docker Hub using GitHub Secrets
+     - name: Log in to Docker Hub
+       uses: docker/login-action@v3
+       with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    # Step 2: Build the Docker image and push it to the registry
+     - name: Build and Push Docker Image
+       uses: docker/build-push-action@v6
+       with:
+         context: .
+         file: ./Dockerfile
+         push: true
+         tags: |
+               ${{ secrets.DOCKER_USERNAME }}/java-app:latest
+               ${{ secrets.DOCKER_USERNAME }}/java-app:${{ github.sha }}
+
+               
     # Example 3: Downloading the Artifact in a later job
-    - name: Download Build Artifact
-      uses: actions/download-artifact@v4
-      with:
-         name: java-app-jar
-         path: drop/
+   # - name: Download Build Artifact
+   #   uses: actions/download-artifact@v4
+   #   with:
+   #      name: java-app-jar
+   #      path: drop/
   
-    - name: Verify Downloaded Artifact
-      run: ls -R drop/
+   # - name: Verify Downloaded Artifact
+   #   run: ls -R drop/
 
          
