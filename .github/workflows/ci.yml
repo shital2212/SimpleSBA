@@ -15,7 +15,7 @@ jobs:
 
     steps:
     # Pulls the source code from your GitHub repository onto the runner machine
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     
     # Configures the required Java Development Kit (JDK) environment
     - name: Set up JDK 17
@@ -47,7 +47,7 @@ jobs:
     steps:
       # Pulls the source code again to access the Dockerfile and root project context
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # Retrieves the JAR file saved by the build job and places it back into the target folder
       - name: Download Build Artifact
