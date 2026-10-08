@@ -51,7 +51,7 @@ jobs:
 
       # Retrieves the JAR file saved by the build job and places it back into the target folder
       - name: Download Build Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: SpringBootApp-0.0.1-SNAPSHOT
           path: target # Recreates the target folder so the Dockerfile can find the file
