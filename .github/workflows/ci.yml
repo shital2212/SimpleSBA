@@ -31,7 +31,7 @@ jobs:
 
     # Saves the compiled JAR file to GitHub's cloud storage so the next job can use it
     - name: Upload Build Artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
          name: SpringBootApp-0.0.1-SNAPSHOT
          path: target/*.jar # Grabs the generated JAR from the Maven target directory
